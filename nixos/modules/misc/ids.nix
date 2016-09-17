@@ -274,6 +274,9 @@
       gocd-server = 252;
       terraria = 253;
       mattermost = 254;
+      prometheus = 255;
+      telegraf = 256;
+      gitlab-runner = 257;
 
       # When adding a uid, make sure it doesn't match an existing gid. And don't use uids above 399!
 
@@ -518,6 +521,9 @@
       gocd-server = 252;
       terraria = 253;
       mattermost = 254;
+      prometheus = 255;
+      #telegraf = 256; # unused
+      gitlab-runner = 257;
 
       # When adding a gid, make sure it doesn't match an existing
       # uid. Users and groups with the same name should have equal
