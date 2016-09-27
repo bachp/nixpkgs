@@ -12234,6 +12234,12 @@ in
     inherit (pythonPackages) pyqt5 sip;
   };
 
+  calico-containers = callPackage ../applications/networking/cluster/calico/node.nix {};
+
+  calico-cni = callPackage ../applications/networking/cluster/calico/cni.nix {};
+
+  calico-k8s-policy = callPackage ../applications/networking/cluster/calico/policy.nix {};
+
   camlistore = callPackage ../applications/misc/camlistore { };
 
   canto-curses = callPackage ../applications/networking/feedreaders/canto-curses { };
@@ -12321,6 +12327,8 @@ in
 
     pulseaudioSupport = config.pulseaudio or false;
   };
+
+  cni = callPackage ../applications/networking/cluster/cni {};
 
   communi = qt5.callPackage ../applications/networking/irc/communi { };
 
