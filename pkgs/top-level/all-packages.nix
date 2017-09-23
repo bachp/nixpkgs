@@ -17141,6 +17141,7 @@ with pkgs;
 
   runc = callPackage ../applications/virtualization/runc {};
   runv = callPackage ../applications/virtualization/runv {};
+  hyperstart = callPackage ../applications/virtualization/runv/hyperstart.nix {};
 
   rxvt = callPackage ../applications/misc/rxvt { };
 
