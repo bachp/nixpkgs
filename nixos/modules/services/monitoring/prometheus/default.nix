@@ -210,6 +210,22 @@ let
           List of relabel configurations.
         '';
       };
+      metric_relabel_configs = mkOption {
+        type = types.listOf promTypes.relabel_config;
+        default = [];
+        apply = x: map _filter x;
+        description = ''
+          List of metric relabel configurations.
+        '';
+      };
+      alert_relabel_configs = mkOption {
+        type = types.listOf promTypes.relabel_config;
+        default = [];
+        apply = x: map _filter x;
+        description = ''
+          List of alarm relabel configurations.
+        '';
+      };
     };
   };
 
