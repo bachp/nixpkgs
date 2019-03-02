@@ -1,4 +1,4 @@
-{ pkgs, fetchgit, php }:
+{ pkgs, fetchgit, fetchpatch, php }:
 
 let
   self = with self; {
@@ -163,6 +163,19 @@ let
     name = "pcs-1.3.3";
 
     sha256 = "0d4p1gpl8gkzdiv860qzxfz250ryf0wmjgyc8qcaaqgkdyh5jy5p";
+  };
+
+  smbclient = buildPecl {
+    name = "smbclient-1.0.0";
+    sha256 = "19c9lgbfn62cfzida5z8sx4xh93b9a3lvhcw3yjssww622zd2z65";
+    buildInputs = [ pkgs.samba (if isPhp73 then pkgs.pcre2 else pkgs.pcre) ];
+    patches = [
+      (fetchpatch {
+        name = "find-libsmbclient.patch";
+        url = "https://github.com/eduardok/libsmbclient-php/pull/66/commits/c8256a96be5b555326a1f05ec9bf77e51810f748.patch";
+        sha256 = "0bs2gpgc1y096mmxjhbifhr6fqlm16csgqq1swr39f17pc1mlpdi";
+    }) ];
+    configureFlags = [ "--with-libsmbclient=${pkgs.samba.dev}" ];
   };
 
   sqlsrv = buildPecl rec {
