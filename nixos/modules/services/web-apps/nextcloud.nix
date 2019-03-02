@@ -17,6 +17,7 @@ let
     ${optionalString cfg.caching.redis "extension=${phpPackages.redis}/lib/php/extensions/redis.so"}
     ${optionalString cfg.caching.memcached "extension=${phpPackages.memcached}/lib/php/extensions/memcached.so"}
     extension=${phpPackages.imagick}/lib/php/extensions/imagick.so
+    extension=${phpPackages.smbclient}/lib/php/extensions/smbclient.so
     zend_extension = opcache.so
     opcache.enable = 1
   '';
