@@ -40,7 +40,8 @@
                              libgudev ? null,
                              hicolor-icon-theme ? null,
   # FDK
-  useFdk ? false, fdk_aac ? null
+  useFdk ? false, fdk_aac ? null,
+  intel-media-sdk, intel-media-driver, libva 
 }:
 
 assert stdenv.isDarwin -> AudioToolbox != null && Foundation != null
@@ -64,6 +65,8 @@ stdenv.mkDerivation rec {
     libopus lame libvorbis a52dec speex libsamplerate
     libiconv fribidi fontconfig freetype libass jansson libxml2 harfbuzz
     libdvdread libdvdnav libdvdcss libbluray lzma
+    intel-media-sdk intel-media-driver
+    libva
   ] ++ lib.optionals useGtk [
     glib gtk3 libappindicator-gtk3 libnotify
     gst_all_1.gstreamer gst_all_1.gst-plugins-base dbus-glib udev
@@ -104,6 +107,7 @@ stdenv.mkDerivation rec {
   configureFlags = [
     "--disable-df-fetch"
     "--disable-df-verify"
+    "--enable-qsv"
     (if useGtk          then "--disable-gtk-update-checks" else "--disable-gtk")
     (if useFdk          then "--enable-fdk-aac"            else "")
     (if stdenv.isDarwin then "--disable-xcode"             else "")
@@ -112,6 +116,7 @@ stdenv.mkDerivation rec {
   # NOTE: 2018-12-27: Check NixOS HandBrake test if changing
   NIX_LDFLAGS = [
     "-lx265"
+    "-lmfx"
   ];
 
   preBuild = ''
