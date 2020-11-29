@@ -257,6 +257,7 @@
   ./services/backup/tsm.nix
   ./services/backup/zfs-replication.nix
   ./services/backup/znapzend.nix
+  ./services/blockchain/lighthouse.nix
   ./services/blockchain/openethereum.nix
   ./services/cluster/hadoop/default.nix
   ./services/cluster/k3s/default.nix
