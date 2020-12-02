@@ -55,7 +55,7 @@ in stdenv.mkDerivation rec {
   nativeBuildInputs = [
     cmake
     autoconf # for vendored jemalloc
-    flatbuffers
+    flatbuffers thrift.bin
   ] ++ lib.optional stdenv.isDarwin fixDarwinDylibNames;
   buildInputs = [
     boost

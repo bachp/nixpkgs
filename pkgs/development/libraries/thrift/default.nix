@@ -1,6 +1,12 @@
-{ stdenv, fetchurl, fetchpatch, boost, zlib, libevent, openssl, python, cmake, pkgconfig
-, bison, flex, twisted, static ? false }:
-
+{ stdenv, fetchurl, fetchpatch, boost, zlib, libevent, openssl, cmake, pkgconfig
+, bison, flex
+, static ? false
+}:
+let
+  # FIXME: Fails to link in static mode with undefined reference to
+  # `boost::unit_test::unit_test_main(bool (*)(), int, char**)'
+  doCheck = !static && (stdenv.hostPlatform == stdenv.buildPlatform);
+in
 stdenv.mkDerivation rec {
   pname = "thrift";
   version = "0.13.0";
@@ -23,22 +29,22 @@ stdenv.mkDerivation rec {
   # pythonFull.buildEnv.override { extraLibs = [ thrift ]; }
   pythonPath = [];
 
-  nativeBuildInputs = [ cmake pkgconfig ];
-  buildInputs = [ boost zlib libevent openssl python bison flex ]
-    ++ stdenv.lib.optional (!static) twisted;
+  nativeBuildInputs = [ cmake pkgconfig bison flex ];
+  buildInputs = [ boost zlib libevent openssl ];
+
+  outputs = [ "bin" "out" ];
 
   preConfigure = "export PY_PREFIX=$out";
 
   cmakeFlags = [
-    # FIXME: Fails to link in static mode with undefined reference to
-    # `boost::unit_test::unit_test_main(bool (*)(), int, char**)'
-    "-DBUILD_TESTING:BOOL=${if static then "OFF" else "ON"}"
+    "-DBUILD_TESTING:BOOL=${if doCheck then "ON" else "OFF"}"
+    "-DBUILD_TUTORIALS:BOOL=OFF"
   ] ++ stdenv.lib.optionals static [
     "-DWITH_STATIC_LIB:BOOL=ON"
     "-DOPENSSL_USE_STATIC_LIBS=ON"
   ];
 
-  doCheck = !static;
+  inherit doCheck;
   checkPhase = ''
     runHook preCheck
 
@@ -47,6 +53,14 @@ stdenv.mkDerivation rec {
     runHook postCheck
   '';
   enableParallelChecking = false;
+
+  postInstall = ''
+    mkdir -p $bin && mv $out/bin $bin/bin
+
+    # Fix up library paths for split outputs
+    substituteInPlace $out/lib/cmake/thrift/*Config.cmake \
+      --replace "$out/bin" "$bin/bin"
+  '';
 
   meta = with stdenv.lib; {
     description = "Library for scalable cross-language services";
