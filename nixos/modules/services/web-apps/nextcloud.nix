@@ -73,6 +73,11 @@ in {
       default = "/var/lib/nextcloud";
       description = "Storage path of nextcloud.";
     };
+    dataDir = mkOption {
+      type = types.str;
+      default = "${cfg.home}/data";
+      description = "Path of nextcloud datadirectory.";
+    };
     logLevel = mkOption {
       type = types.ints.between 0 4;
       default = 2;
@@ -427,7 +432,7 @@ in {
                 [ 'path' => '${cfg.home}/apps', 'url' => '/apps', 'writable' => false ],
                 [ 'path' => '${cfg.home}/store-apps', 'url' => '/store-apps', 'writable' => true ],
               ],
-              'datadirectory' => '${cfg.home}/data',
+              'datadirectory' => '${cfg.dataDir}',
               'skeletondirectory' => '${cfg.skeletonDirectory}',
               ${optionalString cfg.caching.apcu "'memcache.local' => '\\OC\\Memcache\\APCu',"}
               'log_type' => 'syslog',
@@ -469,7 +474,7 @@ in {
                 then "--database-table-prefix" else null} = ''"${toString c.dbtableprefix}"'';
               "--admin-user" = ''"${c.adminuser}"'';
               "--admin-pass" = adminpass;
-              "--data-dir" = ''"${cfg.home}/data"'';
+              "--data-dir" = ''"${cfg.dataDir}"'';
             });
           in ''
             ${occ}/bin/nextcloud-occ maintenance:install \
@@ -513,7 +518,7 @@ in {
 
             # create nextcloud directories.
             # if the directories exist already with wrong permissions, we fix that
-            for dir in ${cfg.home}/config ${cfg.home}/data ${cfg.home}/store-apps; do
+            for dir in ${cfg.home}/config ${cfg.dataDir} ${cfg.home}/store-apps; do
               if [ ! -e $dir ]; then
                 install -o nextcloud -g nextcloud -d $dir
               elif [ $(stat -c "%G" $dir) != "nextcloud" ]; then
