@@ -1,11 +1,11 @@
 { stdenv, fetchurl, fetchpatch, boost, zlib, libevent, openssl, cmake, pkgconfig
 , bison, flex
-, static ? false
+, static ? false,
 }:
 let
   # FIXME: Fails to link in static mode with undefined reference to
   # `boost::unit_test::unit_test_main(bool (*)(), int, char**)'
-  doCheck = !static && (stdenv.hostPlatform == stdenv.buildPlatform);
+  doCheck = false && !static && (stdenv.hostPlatform == stdenv.buildPlatform);
 in
 stdenv.mkDerivation rec {
   pname = "thrift";

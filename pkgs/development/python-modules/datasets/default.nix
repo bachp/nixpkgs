@@ -14,13 +14,13 @@
 
 buildPythonPackage rec {
   pname = "datasets";
-  version = "1.1.2";
+  version = "1.1.3";
 
   src = fetchFromGitHub {
     owner = "huggingface";
     repo = pname;
     rev = version;
-    hash = "sha256-upXZ2rOfmjnJbDo6RMGeHv/fe10RQAf/zwDWWKdt6SA=";
+    hash = "sha256:106ard94z4qcagybfw7v2hj7q4fk230dmi926680jl5f8qszhz9s";
   };
 
   propagatedBuildInputs = [
