@@ -5618,6 +5618,8 @@ in {
 
   pykka = callPackage ../development/python-modules/pykka { };
 
+  pykrakenapi = callPackage ../development/python-modules/pykrakenapi { };
+
   pykwalify = callPackage ../development/python-modules/pykwalify { };
 
   pylacrosse = callPackage ../development/python-modules/pylacrosse { };
