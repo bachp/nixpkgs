@@ -6376,6 +6376,8 @@ in {
     igraph = pkgs.igraph;
   };
 
+  python-interface = callPackage ../development/python-modules/python-interface { };
+
   pythonIRClib = callPackage ../development/python-modules/pythonirclib { };
 
   pythonix = callPackage ../development/python-modules/pythonix {
