@@ -3267,6 +3267,8 @@ in {
 
   iso3166 = callPackage ../development/python-modules/iso3166 { };
 
+  iso4217 = callPackage ../development/python-modules/iso4217 { };
+
   iso-639 = callPackage ../development/python-modules/iso-639 { };
 
   iso8601 = callPackage ../development/python-modules/iso8601 { };
