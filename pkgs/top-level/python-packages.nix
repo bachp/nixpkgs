@@ -3861,6 +3861,8 @@ in {
 
   lpod = callPackage ../development/python-modules/lpod { };
 
+  lru-dict = callPackage ../development/python-modules/lru-dict { };
+
   lsi = callPackage ../development/python-modules/lsi { };
 
   lsassy = callPackage ../development/python-modules/lsassy { };
