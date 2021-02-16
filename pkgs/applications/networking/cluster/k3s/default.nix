@@ -43,7 +43,7 @@ with lib;
 # Those pieces of software we entirely ignore upstream's handling of, and just
 # make sure they're in the path if desired.
 let
-  k3sVersion = "1.19.4+k3s2";     # k3s git tag
+  k3sVersion = "1.20.2+k3s1";     # k3s git tag
   traefikChartVersion = "1.81.0"; # taken from ./scripts/download at the above k3s tag
   k3sRootVersion = "0.7.1";       # taken from ./scripts/download at the above k3s tag
   k3sCNIVersion = "0.8.6-k3s1";   # taken from ./scripts/version.sh at the above k3s tag
@@ -95,7 +95,7 @@ let
     url = "https://github.com/k3s-io/k3s";
     rev = "v${k3sVersion}";
     leaveDotGit = true; # ./scripts/version.sh depends on git
-    sha256 = "1qxjdgnq8mf54760f0vngcqa2y3b048pcmfsf1g593b2ij1kg1zi";
+    sha256 = "1mhbfn31jl541iinq34r9a4wydml8bhf6s6wqmsvnmd69a9j8rgw";
   };
   # Stage 1 of the k3s build:
   # Let's talk about how k3s is structured.
@@ -126,7 +126,7 @@ let
 
     src = k3sRepo;
 
-    patches = [ ./patches/0001-Use-rm-from-path-in-go-generate.patch ./patches/0002-Add-nixpkgs-patches.patch ];
+    patches = [ ./patches/0002-Add-nixpkgs-patches.patch ];
 
     nativeBuildInputs = [ git pkg-config ];
     buildInputs = [ libseccomp ];
@@ -166,7 +166,7 @@ let
 
     src = k3sRepo;
 
-    patches = [ ./patches/0001-Use-rm-from-path-in-go-generate.patch ./patches/0002-Add-nixpkgs-patches.patch ];
+    patches = [ ./patches/0002-Add-nixpkgs-patches.patch ];
 
     nativeBuildInputs = [ git pkg-config ];
     # These dependencies are embedded as compressed files in k3s at runtime.
