@@ -910,6 +910,8 @@ in {
 
   bcdoc = callPackage ../development/python-modules/bcdoc { };
 
+  bcolz = callPackage ../development/python-modules/bcolz { };
+
   bcrypt = if pythonOlder "3.6" then
     callPackage ../development/python-modules/bcrypt/3_1.nix { }
   else
@@ -1016,6 +1018,8 @@ in {
   blockdiagcontrib-cisco = throw "blockdiagcontrib-cisco is not compatible with blockdiag 2.0.0 and has been removed."; # Added 2020-11-29
 
   block-io = callPackage ../development/python-modules/block-io { };
+
+  blosc = callPackage ../development/python-modules/blosc { };
 
   bluepy = callPackage ../development/python-modules/bluepy { };
 
@@ -2070,6 +2074,8 @@ in {
   emv = callPackage ../development/python-modules/emv { };
 
   emoji = callPackage ../development/python-modules/emoji { };
+
+  empyrical = callPackage ../development/python-modules/empyrical { };
 
   enaml = callPackage ../development/python-modules/enaml { };
 
@@ -7974,6 +7980,8 @@ in {
 
   trackpy = callPackage ../development/python-modules/trackpy { };
 
+  trading-calendars = callPackage ../development/python-modules/trading-calendars { };
+
   traitlets = if pythonOlder "3.7" then
     callPackage ../development/python-modules/traitlets/4.nix { }
   else
@@ -8674,6 +8682,8 @@ in {
   zimports = callPackage ../development/python-modules/zimports { };
 
   zipfile36 = callPackage ../development/python-modules/zipfile36 { };
+
+  zipline = callPackage ../development/python-modules/zipline { };
 
   zipp = if pythonOlder "3.6" then
     callPackage ../development/python-modules/zipp/1.nix { }
