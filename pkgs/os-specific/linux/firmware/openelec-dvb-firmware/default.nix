@@ -1,12 +1,14 @@
-{ lib, stdenv, fetchurl }:
+{ lib, stdenv, fetchFromGitHub }:
 
 stdenv.mkDerivation rec {
   pname = "openelec-dvb-firmware";
   version = "0.0.51";
 
-  src = fetchurl {
-    url = "https://github.com/OpenELEC/dvb-firmware/archive/${version}.tar.gz";
-    sha256 = "cef3ce537d213e020af794cecf9de207e2882c375ceda39102eb6fa2580bad8d";
+  src = fetchFromGitHub {
+    owner = "OpenELEC";
+    repo = "dvb-firmware";
+    rev = version;
+    sha256 = "1g8xcqy660ifqw8aq63w5ylwpgxhc9q5k1shhyfqcxjbplxjs0z5";
   };
 
   phases = [ "unpackPhase" "installPhase" ];
