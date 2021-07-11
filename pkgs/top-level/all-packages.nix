@@ -20697,6 +20697,7 @@ in
   linuxConsoleTools = callPackage ../os-specific/linux/consoletools { };
 
   openelec-dvb-firmware = callPackage ../os-specific/linux/firmware/openelec-dvb-firmware { };
+  openelec-wlan-firmware = callPackage ../os-specific/linux/firmware/openelec-wlan-firmware { };
 
   openiscsi = callPackage ../os-specific/linux/open-iscsi { };
 
