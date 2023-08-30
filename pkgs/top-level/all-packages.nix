@@ -26586,6 +26586,8 @@ with pkgs;
 
   kapowbang = callPackage ../servers/kapowbang { };
 
+  kas = callPackage ../development/tools/kas { };
+
   keycloak = callPackage ../servers/keycloak { };
 
   knot-dns = callPackage ../servers/dns/knot-dns { };
