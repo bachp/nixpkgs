@@ -26,24 +26,18 @@ let
 in
 buildGoModule rec {
   pname = "container-toolkit/container-toolkit";
-  version = "1.9.0";
+  version = "1.14.3";
 
   src = fetchFromGitLab {
     owner = "nvidia";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-b4mybNB5FqizFTraByHk5SCsNO66JaISj18nLgLN7IA=";
+    hash = "sha256-i2OWqP9HCccSEAlDlONTlwZOBV15uQFeLT5jEQTceyg=";
   };
 
   vendorHash = null;
 
-  postPatch = ''
-    # replace the default hookDefaultFilePath to the $out path
-    substituteInPlace cmd/nvidia-container-runtime/main.go \
-      --replace '/usr/bin/nvidia-container-runtime-hook' '${placeholder "out"}/bin/nvidia-container-runtime-hook'
-  '';
-
-  ldflags = [ "-s" "-w" ];
+  #ldflags = [ "-s" "-w" ];
 
   nativeBuildInputs = [ makeWrapper ];
 
@@ -79,14 +73,14 @@ buildGoModule rec {
     substituteInPlace $out/etc/nvidia-container-runtime/config.toml \
       --subst-var-by glibcbin ${lib.getBin glibc}
 
-    ln -s $out/bin/nvidia-container-{toolkit,runtime-hook}
+    #ln -s $out/bin/nvidia-container-{toolkit,runtime-hook}
 
-    wrapProgram $out/bin/nvidia-container-toolkit \
-      --add-flags "-config ${placeholder "out"}/etc/nvidia-container-runtime/config.toml"
+    #wrapProgram $out/bin/nvidia-container-toolkit \
+    #  --add-flags "-config ${placeholder "out"}/etc/nvidia-container-runtime/config.toml"
   '';
 
   meta = with lib; {
-    homepage = "https://gitlab.com/nvidia/container-toolkit/container-toolkit";
+    homepage = "https://github.com/NVIDIA/nvidia-container-toolkit";
     description = "NVIDIA Container Toolkit";
     license = licenses.asl20;
     platforms = platforms.linux;
