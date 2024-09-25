@@ -199,6 +199,7 @@ in
       phpPackage = cfg.package.phpPackage;
       phpOptions = ''
         log_errors = on
+        max_execution_time = 600
       '';
       settings = {
         "listen.mode" = "0660";
