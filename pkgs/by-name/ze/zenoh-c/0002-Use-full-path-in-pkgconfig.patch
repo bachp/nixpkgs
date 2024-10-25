@@ -1,0 +1,26 @@
+From 6291369c17d8ac91c01343bc032ae0b8437f794f Mon Sep 17 00:00:00 2001
+From: Pascal Bach <pascal.bach@nextrem.ch>
+Date: Mon, 3 Oct 2022 22:35:20 +0200
+Subject: [PATCH 2/2] Use full path in pkgconfig
+
+---
+ zenohc.pc.in | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/zenohc.pc.in b/zenohc.pc.in
+index 2aedb0f..52015aa 100644
+--- a/zenohc.pc.in
++++ b/zenohc.pc.in
+@@ -4,5 +4,5 @@ Name: @PROJECT_NAME@
+ Description: @CMAKE_PROJECT_DESCRIPTION@
+ URL: @CMAKE_PROJECT_HOMEPAGE_URL@
+ Version: @PROJECT_VERSION@
+-Cflags: -I${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+-Libs: -L${prefix}/@CMAKE_INSTALL_LIBDIR@ -lzenohc
+\ No newline at end of file
++Cflags: -I@CMAKE_INSTALL_FULL_INCLUDEDIR@
++Libs: -L@CMAKE_INSTALL_FULL_LIBDIR@ -lzenohc
+\ No newline at end of file
+-- 
+2.37.3
+

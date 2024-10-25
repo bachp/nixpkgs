@@ -1,0 +1,25 @@
+From 0db178ae65c0a642614e3b6d1860c478dd4af1af Mon Sep 17 00:00:00 2001
+From: Pascal Bach <pascal.bach@nextrem.ch>
+Date: Mon, 3 Oct 2022 21:54:17 +0200
+Subject: [PATCH 1/2] Respect gnuinstalldirs for pkgconfig directory
+
+Signed-off-by: Pascal Bach <pascal.bach@nextrem.ch>
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9029e43..ff58e94 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -136,5 +136,5 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/" CONFIGURATIONS Release RelWithD
+ configure_file("${CMAKE_SOURCE_DIR}/zenohc.pc.in" "${CMAKE_SOURCE_DIR}/zenohc.pc" @ONLY)
+ 
+ if(APPLE OR UNIX)
+-	install(FILES "${CMAKE_SOURCE_DIR}/zenohc.pc" CONFIGURATIONS Release RelWithDebInfo DESTINATION "/usr/lib/pkgconfig" OPTIONAL)
++	install(FILES "${CMAKE_SOURCE_DIR}/zenohc.pc" CONFIGURATIONS Release RelWithDebInfo DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" OPTIONAL)
+ endif()
+\ No newline at end of file
+-- 
+2.37.3
+
