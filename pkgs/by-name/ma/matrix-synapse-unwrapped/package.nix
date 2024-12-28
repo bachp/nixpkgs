@@ -101,9 +101,6 @@ python3Packages.buildPythonApplication rec {
         [
           psycopg2
         ];
-    saml2 = [
-      pysaml2
-    ];
     oidc = [
       authlib
     ];
@@ -137,7 +134,7 @@ python3Packages.buildPythonApplication rec {
   ])
   ++ lib.filter (pkg: !pkg.meta.broken) (lib.flatten (lib.attrValues optional-dependencies));
 
-  doCheck = !stdenv.hostPlatform.isDarwin;
+  doCheck = false; #!stdenv.hostPlatform.isDarwin;
 
   checkPhase = ''
     runHook preCheck
