@@ -57,7 +57,7 @@
   util-linux,
   openexr,
   openjpeg,
-  osm-gps-map,
+  #osm-gps-map,
   pcre2,
   portmidi,
   pugixml,
@@ -141,7 +141,7 @@ stdenv.mkDerivation rec {
     lua
     openexr
     openjpeg
-    osm-gps-map
+    #osm-gps-map
     pcre2
     portmidi
     pugixml
