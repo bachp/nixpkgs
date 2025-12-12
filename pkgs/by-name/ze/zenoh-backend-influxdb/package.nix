@@ -6,16 +6,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "zenoh-backend-influxdb";
-  version = "1.4.0"; # nixpkgs-update: no auto update
+  version = "1.7.1"; # nixpkgs-update: no auto update
 
   src = fetchFromGitHub {
     owner = "eclipse-zenoh";
     repo = "zenoh-backend-influxdb";
     tag = version;
-    hash = "sha256-OwIVaWy3rgnn9Cm7sqBvFua2FOCgMQBoxPh+8HkvpB0=";
+    hash = "sha256-Y2r8bFBHX3LtVh2aNnav/ZPRBC0vBjEXHxqhRuaITpc=";
   };
 
-  cargoHash = "sha256-yOcbg4+hXdecBN3oeuhs6J1PQ43s8oYOBX/CJ3IyoJ0=";
+  cargoHash = "sha256-KdsM7E+1jDqgc6zYE9L3QQfnIT2w5xlm7dAV/ocJ+Iw=";
 
   meta = {
     description = "Backend and Storages for zenoh using InfluxDB";
@@ -24,7 +24,10 @@ rustPlatform.buildRustPackage rec {
       epl20
       asl20
     ];
-    maintainers = with lib.maintainers; [ markuskowa ];
+    maintainers = with lib.maintainers; [
+      markuskowa
+      bachp
+    ];
     platforms = lib.platforms.linux;
   };
 }
