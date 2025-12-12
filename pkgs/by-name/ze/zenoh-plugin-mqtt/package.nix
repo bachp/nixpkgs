@@ -6,16 +6,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "zenoh-plugin-mqtt";
-  version = "1.4.0"; # nixpkgs-update: no auto update
+  version = "1.7.1"; # nixpkgs-update: no auto update
 
   src = fetchFromGitHub {
     owner = "eclipse-zenoh";
     repo = "zenoh-plugin-mqtt";
     tag = version;
-    hash = "sha256-ijoKL8TReNER3a9dwsPeh56l1Ze2rz6jN6L9rYQLYRU=";
+    hash = "sha256-HbdaOLrGiIoiRZJrNC2spd0yK4Lf8noibpPMo6DvwMA=";
   };
 
-  cargoHash = "sha256-ZKpyVVzXC+c7JzktSOMubWl610ujoZ3Vgo4tC0/1JHk=";
+  cargoHash = "sha256-N8JwmFdpnLxAhJmlOC/UNUYoijmXjhuzin9XlfqWLlY=";
 
   # Some test time out
   doCheck = false;
@@ -27,7 +27,10 @@ rustPlatform.buildRustPackage rec {
       epl20
       asl20
     ];
-    maintainers = with lib.maintainers; [ markuskowa ];
+    maintainers = with lib.maintainers; [
+      markuskowa
+      bachp
+    ];
     platforms = lib.platforms.linux;
     mainProgram = "zenoh-bridge-mqtt";
   };
