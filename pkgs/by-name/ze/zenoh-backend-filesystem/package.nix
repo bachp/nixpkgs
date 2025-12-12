@@ -10,16 +10,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "zenoh-backend-filesystem";
-  version = "1.4.0"; # nixpkgs-update: no auto update
+  version = "1.7.1"; # nixpkgs-update: no auto update
 
   src = fetchFromGitHub {
     owner = "eclipse-zenoh";
     repo = "zenoh-backend-filesystem";
     tag = version;
-    hash = "sha256-aMIVBs3K9h2aVPuaU5DzOjm3xzpHJn8MnjxdCDCANCw=";
+    hash = "sha256-EidlqhawAJPf287lAr3+Tp2diT/CWp3x4AjLzKYlniU=";
   };
 
-  cargoHash = "sha256-d7LgxaZHcMpqx0/+qmcHlAn1pAjBrGqjeTsiqZEJ+1Q=";
+  cargoHash = "sha256-OUCexglIV/AAALqq+3VHrgxF55INSVcuYsPDR+yDBKg=";
 
   nativeBuildInputs = [
     pkg-config
@@ -44,7 +44,10 @@ rustPlatform.buildRustPackage rec {
       epl20
       asl20
     ];
-    maintainers = with lib.maintainers; [ markuskowa ];
+    maintainers = with lib.maintainers; [
+      markuskowa
+      bachp
+    ];
     platforms = lib.platforms.linux;
   };
 }
