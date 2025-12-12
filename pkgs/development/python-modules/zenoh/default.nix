@@ -9,19 +9,19 @@
 
 buildPythonPackage rec {
   pname = "zenoh";
-  version = "1.4.0"; # nixpkgs-update: no auto update
+  version = "1.7.1"; # nixpkgs-update: no auto update
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "eclipse-zenoh";
     repo = "zenoh-python";
     rev = version;
-    hash = "sha256-X9AUjuJYA8j41JVS+ZLRYcQUzSRoGwmkNIH0UK5+QoU=";
+    hash = "sha256-DqNNJdxalvn4RvBd40yxMDolmwX+cVAMR4pHpDW0q3s=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit src pname version;
-    hash = "sha256-Z6Wtor/aAdO1JUUafFEo9RdI7OXmsAD5MMtMUF6CZEg=";
+    hash = "sha256-93NHpxTeB0R+nCydo3eU8KvMmj7MBRMHH6fOlCE3x4c=";
   };
 
   build-system = [
@@ -42,6 +42,9 @@ buildPythonPackage rec {
       asl20
       epl20
     ];
-    maintainers = with lib.maintainers; [ markuskowa ];
+    maintainers = with lib.maintainers; [
+      markuskowa
+      bachp
+    ];
   };
 }
