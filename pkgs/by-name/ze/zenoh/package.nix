@@ -8,16 +8,16 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "zenoh";
-  version = "1.4.0"; # nixpkgs-update: no auto update
+  version = "1.7.1"; # nixpkgs-update: no auto update
 
   src = fetchFromGitHub {
     owner = "eclipse-zenoh";
     repo = "zenoh";
     rev = version;
-    hash = "sha256-XibcNrT9R8gdOnf4BtOi5Jqu+4XjeWngA3i/MXnkfn8=";
+    hash = "sha256-khHwYTAcVwd566PrnFfqnh40qxsw6KGRqZSJhJFImvU=";
   };
 
-  cargoHash = "sha256-z0hSjcmVOefSiPgk6ige4wsR+LikNIjwi0On1/hyi78=";
+  cargoHash = "sha256-3hEvhwOW6BXY6MBGkLmFx8JH3uuhMk8Ka1HaaS03bqI=";
 
   cargoBuildFlags = [
     "--workspace"
@@ -48,7 +48,10 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://zenoh.io";
     changelog = "https://github.com/eclipse-zenoh/zenoh/releases/tag/${src.rev}";
     license = lib.licenses.asl20;
-    maintainers = with lib.maintainers; [ ck3d ];
+    maintainers = with lib.maintainers; [
+      ck3d
+      bachp
+    ];
     mainProgram = "zenohd";
     platforms = lib.platforms.linux;
   };
