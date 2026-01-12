@@ -20513,6 +20513,8 @@ self: super: with self; {
     callPackage ../development/python-modules/tensorflow-estimator/bin.nix
       { };
 
+  tensorflow-hub = callPackage ../development/python-modules/tensorflow-hub { };
+
   tensorflow-metadata = callPackage ../development/python-modules/tensorflow-metadata { };
 
   tensorflow-model-optimization =
