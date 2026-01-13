@@ -7892,6 +7892,10 @@ self: super: with self; {
 
   jupyter = callPackage ../development/python-modules/jupyter { };
 
+  jupyter-ai = callPackage ../development/python-modules/jupyter-ai { };
+
+  jupyter-ai-magics = callPackage ../development/python-modules/jupyter-ai-magics { };
+
   jupyter-book = callPackage ../development/python-modules/jupyter-book { };
 
   jupyter-c-kernel = callPackage ../development/python-modules/jupyter-c-kernel { };
