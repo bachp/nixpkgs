@@ -18764,6 +18764,8 @@ self: super: with self; {
 
   tensorflow-probability = callPackage ../development/python-modules/tensorflow-probability { };
 
+  tensorflow-model-optimization = callPackage ../development/python-modules/tensorflow-model-optimization { };
+
   tensorflowWithCuda = self.tensorflow.override { cudaSupport = true; };
 
   tensorflowWithoutCuda = self.tensorflow.override { cudaSupport = false; };
