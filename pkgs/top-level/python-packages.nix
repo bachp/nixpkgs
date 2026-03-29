@@ -8990,6 +8990,8 @@ self: super: with self; {
 
   jupyter-server-mathjax = callPackage ../development/python-modules/jupyter-server-mathjax { };
 
+  jupyter-server-proxy = callPackage ../development/python-modules/jupyter-server-proxy { };
+
   jupyter-server-terminals = callPackage ../development/python-modules/jupyter-server-terminals { };
 
   jupyter-server-ydoc = callPackage ../development/python-modules/jupyter-server-ydoc { };
