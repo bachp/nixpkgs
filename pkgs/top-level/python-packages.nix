@@ -10476,6 +10476,8 @@ self: super: with self; {
 
   marimo = callPackage ../development/python-modules/marimo { };
 
+  marimo-jupyter-extension = callPackage ../development/python-modules/marimo-jupyter-extension { };
+
   marisa = callPackage ../development/python-modules/marisa { inherit (pkgs) marisa; };
 
   marisa-trie = callPackage ../development/python-modules/marisa-trie {
