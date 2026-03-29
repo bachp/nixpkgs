@@ -18973,6 +18973,8 @@ self: super: with self; {
 
   simp-sexp = callPackage ../development/python-modules/simp-sexp { };
 
+  simpervisor = callPackage ../development/python-modules/simpervisor { };
+
   simpful = callPackage ../development/python-modules/simpful { };
 
   simple-dftd3 = callPackage ../development/libraries/science/chemistry/simple-dftd3/python.nix {
