@@ -23,30 +23,30 @@
   mistral-rs,
   nix-update-script,
 
+  cudaSupport ? config.cudaSupport,
   cudaPackages,
   cudaCapability ? null,
 
-  config,
-  # one of `[ null false "cuda" "mkl" "metal" ]`
-  acceleration ? null,
+  mklSupport ? false,
 
+  metalSupport ? stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64 && !cudaSupport,
+
+  config,
 }:
+
+# CUDA and MKL both provide a BLAS backend and are mutually exclusive.
+# Metal is gated to aarch64-darwin by its default and is incompatible with CUDA.
+assert !(cudaSupport && mklSupport);
 
 let
   inherit (stdenv) hostPlatform;
   rustc = rustPlatform.callPackage ({ rustc }: rustc) { };
 
-  accelIsValid = builtins.elem acceleration [
-    null
-    false
-    "cuda"
-    "mkl"
-    "metal"
-  ];
-
-  cudaSupport =
-    assert accelIsValid;
-    (acceleration == "cuda") || (config.cudaSupport && acceleration == null);
+  # It's necessary to consistently use backendStdenv when building with CUDA support,
+  # otherwise we get libstdc++ errors downstream.
+  # cuda imposes an upper bound on the gcc version
+  effectiveStdenv = if cudaSupport then cudaPackages.backendStdenv else stdenv;
+  buildRustPackage = rustPlatform.buildRustPackage.override { stdenv = effectiveStdenv; };
 
   minRequiredCudaCapability = "8.0"; # build fails with 7.5
   inherit (cudaPackages.flags) cudaCapabilities;
@@ -62,17 +62,8 @@ let
       cudaCapability;
   cudaCapability' = lib.toInt (cudaPackages.flags.dropDots cudaCapabilityString);
 
-  mklSupport =
-    assert accelIsValid;
-    (acceleration == "mkl");
-
-  metalSupport =
-    assert accelIsValid;
-    (acceleration == "metal")
-    || (hostPlatform.isDarwin && hostPlatform.isAarch64 && (acceleration == null));
-
 in
-rustPlatform.buildRustPackage (finalAttrs: {
+buildRustPackage (finalAttrs: {
   pname = "mistral-rs";
   version = "0.9.3";
   __structuredAttrs = true;
@@ -261,11 +252,17 @@ rustPlatform.buildRustPackage (finalAttrs: {
   passthru = {
     tests = {
       withMkl = lib.optionalAttrs (hostPlatform.isLinux && hostPlatform.isx86_64) (
-        mistral-rs.override { acceleration = "mkl"; }
+        mistral-rs.override {
+          mklSupport = true;
+          cudaSupport = false;
+        }
       );
-      withCuda = lib.optionalAttrs hostPlatform.isLinux (mistral-rs.override { acceleration = "cuda"; });
+      withCuda = lib.optionalAttrs hostPlatform.isLinux (mistral-rs.override { cudaSupport = true; });
       withMetal = lib.optionalAttrs (hostPlatform.isDarwin && hostPlatform.isAarch64) (
-        mistral-rs.override { acceleration = "metal"; }
+        mistral-rs.override {
+          metalSupport = true;
+          cudaSupport = false;
+        }
       );
     };
     updateScript = nix-update-script { };
