@@ -14,13 +14,13 @@
 
 buildPythonPackage rec {
   pname = "marimo-jupyter-extension";
-  version = "0.1.4";
+  version = "0.3.0";
   pyproject = true;
 
   src = fetchPypi {
     pname = "marimo_jupyter_extension";
     inherit version;
-    hash = "sha256-KxhKSLlqUMtopvi37L28EjB66gj+1hYgegVO2lg7gQo=";
+    hash = "sha256-AZGuHvhv+Xh+t4uQUNJNeSX786zu8I4gNX2fBFu8v1U=";
   };
 
   build-system = [
