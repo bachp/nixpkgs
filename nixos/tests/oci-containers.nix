@@ -69,10 +69,10 @@ let
       '';
     };
 
-  podmanRootlessTests = lib.genAttrs [ "conmon" "healthy" ] (
-    type:
+  podmanRootlessTest =
+    { type, systemdScope ? "system", nameSuffix ? "" }:
     makeTest {
-      name = "oci-containers-podman-rootless-${type}";
+      name = "oci-containers-podman-rootless-${type}${nameSuffix}";
       meta.maintainers = [
         lib.maintainers.leona
         lib.maintainers.ma27
@@ -113,6 +113,7 @@ let
                 podman = {
                   user = "redis";
                   sdnotify = type;
+                  inherit systemdScope;
                 };
               };
             };
@@ -121,13 +122,25 @@ let
 
       testScript = ''
         start_all()
-        podman.wait_for_unit("podman-redis.service")
+        ${
+          if systemdScope == "user" then ''
+            # The unit lives in the user manager of the container owner and
+            # must not exist as a system unit.
+            podman.fail("systemctl is-active podman-redis.service")
+            podman.wait_until_succeeds("systemctl --machine=redis@.host --user is-active podman-redis.service")
+          '' else ''
+            podman.wait_for_unit("podman-redis.service")
+          ''
+        }
         ${lib.optionalString (type != "healthy") ''
           podman.wait_for_open_port(6379)
         ''}
         podman.wait_until_succeeds("set -eo pipefail; echo 'keys *' | redis-cli")
       '';
-    }
+    };
+
+  podmanRootlessTests = lib.genAttrs [ "conmon" "healthy" ] (
+    type: podmanRootlessTest { inherit type; }
   );
 in
 {
@@ -135,4 +148,9 @@ in
   podman = mkOCITest "podman";
   podman-rootless-conmon = podmanRootlessTests.conmon;
   podman-rootless-healthy = podmanRootlessTests.healthy;
+  podman-rootless-user-scope = podmanRootlessTest {
+    type = "conmon";
+    systemdScope = "user";
+    nameSuffix = "-user-scope";
+  };
 }

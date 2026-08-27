@@ -302,6 +302,34 @@ let
                     The user under which the container should run.
                   '';
                 };
+                systemdScope = mkOption {
+                  type = types.enum [
+                    "system"
+                    "user"
+                  ];
+                  default = "system";
+                  description = ''
+                    The scope of the systemd unit that manages the container: either a
+                    system service (`systemd.services`) or a per-user service
+                    (`systemd.user.services`).
+
+                    The default, `"system"`, creates a system unit that runs the
+                    podman client as `podman.user`; when `podman.user` is not
+                    `root`, the container runs rootless under that user even
+                    though the unit itself is a system unit.
+
+                    `"user"` creates a per-user unit that only activates in the
+                    user manager of `podman.user` (enforced with
+                    `ConditionUser=`, because per-user units installed by NixOS
+                    are visible to all users). This is required for `podman
+                    auto-update` to work with rootless containers, because
+                    rootless `podman auto-update` looks up the unit in the
+                    user-scope systemd of the container's owner.
+
+                    For the container to run at boot with `"user"`,
+                    `users.users.<user>.linger` must be enabled.
+                  '';
+                };
               };
             }
           );
@@ -389,6 +417,26 @@ let
         lib.attrsets.getAttrs container.dependsOn cfg.containers
       );
       escapedName = escapeShellArg name;
+
+      scope = container.podman.systemdScope or "system";
+
+      effectiveUser = container.podman.user or "root";
+      inherit (config.users.users.${effectiveUser}) uid;
+      dependOnLingerService =
+        scope == "system"
+        && cfg.backend == "podman"
+        && effectiveUser != "root"
+        && config.users.users.${effectiveUser}.linger;
+
+      # Container ID file, placed in the RuntimeDirectory= of the managing
+      # service manager: /run/<name> for system units, /run/user/<uid>/<name>
+      # for user units.
+      cidFile =
+        if scope == "user" then
+          "/run/user/${toString uid}/${escapedName}/ctr-id"
+        else
+          "/run/${escapedName}/ctr-id";
+
       preStartScript = pkgs.writeShellApplication {
         name = "pre-start";
         runtimeInputs = [ ];
@@ -410,20 +458,21 @@ let
             ${container.imageStream} | ${cfg.backend} load
           ''}
           ${optionalString (cfg.backend == "podman") ''
-            rm -f /run/${escapedName}/ctr-id
+            rm -f ${cidFile}
           ''}
         '';
       };
-
-      effectiveUser = container.podman.user or "root";
-      inherit (config.users.users.${effectiveUser}) uid;
-      dependOnLingerService =
-        cfg.backend == "podman" && effectiveUser != "root" && config.users.users.${effectiveUser}.linger;
     in
     {
-      wantedBy = [ ] ++ optional (container.autoStart) "multi-user.target";
+      wantedBy =
+        [ ]
+        ++ optional (container.autoStart) (
+          if scope == "user" then "default.target" else "multi-user.target"
+        );
       wants =
-        lib.optional (container.imageFile == null && container.imageStream == null) "network-online.target"
+        lib.optional (
+          scope == "system" && container.imageFile == null && container.imageStream == null
+        ) "network-online.target"
         ++ lib.optionals dependOnLingerService [ "linger-users.service" ];
       after =
         lib.optionals (cfg.backend == "docker") [
@@ -431,22 +480,30 @@ let
           "docker.socket"
         ]
         # if imageFile or imageStream is not set, the service needs the network to download the image from the registry
-        ++ lib.optionals (container.imageFile == null && container.imageStream == null) [
-          "network-online.target"
-        ]
+        ++
+          lib.optionals (scope == "system" && container.imageFile == null && container.imageStream == null)
+            [
+              "network-online.target"
+            ]
         ++ dependsOn
         ++ lib.optionals dependOnLingerService [ "linger-users.service" ]
-        ++ lib.optionals (effectiveUser != "root" && container.podman.sdnotify == "healthy") [
-          "user@${toString uid}.service"
-        ];
+        ++
+          lib.optionals
+            (scope == "system" && effectiveUser != "root" && container.podman.sdnotify == "healthy")
+            [
+              "user@${toString uid}.service"
+            ];
       requires =
         dependsOn
-        ++ lib.optionals (effectiveUser != "root" && container.podman.sdnotify == "healthy") [
-          "user@${toString uid}.service"
-        ];
+        ++
+          lib.optionals
+            (scope == "system" && effectiveUser != "root" && container.podman.sdnotify == "healthy")
+            [
+              "user@${toString uid}.service"
+            ];
       environment = lib.mkMerge [
         proxy_env
-        (mkIf (cfg.backend == "podman" && container.podman.user != "root") {
+        (mkIf (scope == "system" && cfg.backend == "podman" && container.podman.user != "root") {
           HOME = config.users.users.${container.podman.user}.home;
         })
       ];
@@ -472,7 +529,7 @@ let
         ++ optional (container.entrypoint != null) "--entrypoint=${escapeShellArg container.entrypoint}"
         ++ optional (container.hostname != null) "--hostname=${escapeShellArg container.hostname}"
         ++ lib.optionals (cfg.backend == "podman") [
-          "--cidfile=/run/${escapedName}/ctr-id"
+          "--cidfile=${cidFile}"
           "--cgroups=enabled"
           "--sdnotify=${container.podman.sdnotify}"
           "-d"
@@ -503,19 +560,26 @@ let
 
       preStop =
         if cfg.backend == "podman" then
-          "podman stop --ignore --cidfile=/run/${escapedName}/ctr-id"
+          "podman stop --ignore --cidfile=${cidFile}"
         else
           "${cfg.backend} stop ${name} || true";
 
       postStop =
         if cfg.backend == "podman" then
-          "podman rm -f --ignore --cidfile=/run/${escapedName}/ctr-id"
+          "podman rm -f --ignore --cidfile=${cidFile}"
         else
           "${cfg.backend} rm -f ${name} || true";
 
-      unitConfig = mkIf (effectiveUser != "root") {
-        RequiresMountsFor = "/run/user/${toString uid}/containers";
-      };
+      unitConfig = lib.mkMerge [
+        (mkIf (scope == "user") {
+          # Per-user units are visible to every user's service manager; only
+          # activate in the container owner's so other users' managers skip it.
+          ConditionUser = effectiveUser;
+        })
+        (mkIf (scope == "system" && effectiveUser != "root") {
+          RequiresMountsFor = "/run/user/${toString uid}/containers";
+        })
+      ];
 
       serviceConfig = {
         ### There is no generalized way of supporting `reload` for docker
@@ -543,8 +607,10 @@ let
         Type = "notify";
         NotifyAccess = "all";
         Delegate = true;
-        User = effectiveUser;
         RuntimeDirectory = escapedName;
+      }
+      // optionalAttrs (cfg.backend == "podman" && scope == "system") {
+        User = effectiveUser;
       };
     };
 
@@ -587,7 +653,13 @@ in
   config = lib.mkIf (cfg.containers != { }) (
     lib.mkMerge [
       {
-        systemd.services = mapAttrs' (n: v: nameValuePair v.serviceName (mkService n v)) cfg.containers;
+        systemd.services = mapAttrs' (n: v: nameValuePair v.serviceName (mkService n v)) (
+          lib.filterAttrs (_: v: v.podman.systemdScope or "system" == "system") cfg.containers
+        );
+
+        systemd.user.services = mapAttrs' (n: v: nameValuePair v.serviceName (mkService n v)) (
+          lib.filterAttrs (_: v: v.podman.systemdScope or "system" == "user") cfg.containers
+        );
 
         assertions =
           let
@@ -597,8 +669,13 @@ in
                 imageFile,
                 imageStream,
                 podman,
+                dependsOn,
                 ...
               }:
+              let
+                podmanUser = if podman == null then "root" else podman.user;
+                systemdScope = podman.systemdScope or "system";
+              in
               [
                 {
                   assertion = imageFile == null || imageStream == null;
@@ -618,22 +695,58 @@ in
                     requires that its running user ${podman.user} has a statically specified uid.
                   '';
                 }
-              ];
+                {
+                  assertion = systemdScope == "user" -> podmanUser != "root";
+                  message = "virtualisation.oci-containers.containers.${name}: podman.systemdScope \"user\" requires a rootless container, set `podman.user`.";
+                }
+                {
+                  assertion = systemdScope == "user" -> config.users.users.${podmanUser}.uid != null;
+                  message = ''
+                    Container ${name} (with podman.systemdScope "user") requires that its running
+                    user ${podmanUser} has a statically specified uid.
+                  '';
+                }
+              ]
+              ++ lib.optionals (systemdScope == "user") (
+                map (dep: {
+                  assertion = cfg.containers.${dep}.podman.systemdScope or "system" == "user";
+                  message = "virtualisation.oci-containers.containers.${name}: a user-scope container can only depend on other user-scope containers (dependsOn \"${dep}\").";
+                }) dependsOn
+              );
           in
           concatMap (name: toAssertions name cfg.containers.${name}) (lib.attrNames cfg.containers);
 
         warnings = mkIf (cfg.backend == "podman") (
           lib.foldlAttrs (
             warnings: name:
-            { podman, ... }:
+            {
+              podman,
+              labels,
+              ...
+            }:
             let
               inherit (config.users.users.${podman.user}) linger;
+              systemdScope = podman.systemdScope or "system";
             in
             warnings
             ++ lib.optional (podman.user != "root" && !linger) ''
               Podman container ${name} is configured as rootless (user ${podman.user}),
               but lingering for this user is turned off.
             ''
+            ++
+              lib.optional
+                (
+                  podman.user != "root"
+                  && systemdScope == "system"
+                  && (labels."io.containers.autoupdate" or null) != null
+                )
+                ''
+                  Podman container ${name} is rootless (user ${podman.user}) and labelled for
+                  `podman auto-update`, but its unit is a system service. Rootless
+                  `podman auto-update` looks for the unit in the user-scope systemd of
+                  ${podman.user} and will fail to restart it. Set
+                  virtualisation.oci-containers.containers.${name}.podman.systemdScope to "user".
+                ''
           ) [ ] cfg.containers
         );
       }
